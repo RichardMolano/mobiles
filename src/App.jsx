@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductList from "./components/ProductList";
 import ProductForm from "./components/ProductForm";
 import "./index.css";
+import ProductDetail from "./components/ProductDetail";
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -11,7 +13,7 @@ const App = () => {
     const savedProducts = JSON.parse(localStorage.getItem("products")) || [];
     setProducts(savedProducts);
 
-    const savedTheme = localStorage.getItem("theme")  || "light";
+    const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
     document.body.classList.toggle(savedTheme);
   }, []);
@@ -43,7 +45,7 @@ const App = () => {
   };
 
   const toggleTheme = () => { // Función que cambia el tema de la aplicación
-    const newTheme = theme === "light" ? "dark" : theme === "dark" ? "blue" : theme ==="blue" ? "yellow" : theme ==="yellow" ? "green" : "light"; // Cambia el tema actual al siguiente en el ciclo (light -> dark -> blue -> yellow --> green -->light) 
+    const newTheme = theme === "light" ? "dark" : theme === "dark" ? "blue" : theme === "blue" ? "yellow" : theme === "yellow" ? "green" : "light"; // Cambia el tema actual al siguiente en el ciclo (light -> dark -> blue -> yellow --> green -->light) 
     document.body.classList.remove(theme);
     document.body.classList.add(newTheme);
     setTheme(newTheme);
@@ -51,14 +53,26 @@ const App = () => {
   };
 
   return (
-    <div className="container">
-      <button className="theme-toggle" onClick={toggleTheme}>
-      {theme === "light" ? "🌙 Modo Oscuro" : theme === "dark" ? "🔵 Modo Azul": theme ===  "blue" ? "Modo Amarillo" :theme === "yellow" ? "Modo Verde": "Blanco"}
-      </button>
-      <h1>Inventario de Equipos de la USTA</h1>
-      <ProductForm onAdd={addProduct} />
-      <ProductList products={products} onDelete={deleteProduct} onEdit={editProduct} />
-    </div>
+    <Router>
+      <div className="container">
+        <button className="theme-toggle" onClick={toggleTheme}>
+          {theme === "light" ? "🌙 Modo Oscuro" : theme === "dark" ? "🔵 Modo Azul" : theme === "blue" ? "Modo Amarillo" : theme === "yellow" ? "Modo Verde" : "Blanco"}
+        </button>
+        <h1>Inventario de Equipos de la USTA</h1>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <ProductForm onAdd={addProduct} />
+                <ProductList products={products} onDelete={deleteProduct} onEdit={editProduct} />
+              </>
+            }
+          />
+          <Route path="/detalle-producto" element={<ProductDetail />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 

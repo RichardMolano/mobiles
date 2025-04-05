@@ -1,6 +1,8 @@
-import React, {  useState,useEffect  } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProductList = ({ products, onDelete, onEdit }) => {
+  const navigate = useNavigate();
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [editCategory, setEditCategory] = useState("");
@@ -55,7 +57,7 @@ const ProductList = ({ products, onDelete, onEdit }) => {
         name: editValue,
         category: editCategory,
         status: editStatus ? "Usado" : "Nuevo",
-        entryDate: editEntryDate ,
+        entryDate: editEntryDate,
         reference: editReference,
         OS: editOS,
         lap: editLaptop ? "Portátil" : "Escritorio"
@@ -100,7 +102,7 @@ const ProductList = ({ products, onDelete, onEdit }) => {
       product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.status.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesDateRange = 
+    const matchesDateRange =
       (!startDate || product.entryDate >= startDate) &&
       (!endDate || product.entryDate <= endDate);
 
@@ -183,7 +185,7 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                 </>
               ) : (
                 <span>
-                  {product.name} - Ref: {product.reference} -
+                  {product.namename} - Ref: {product.reference} -
                   <strong> {product.category}</strong> -
                   {product.status} - {product.lap} - SO: {product.OS}
                 </span>
@@ -197,6 +199,9 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                 </>
               ) : (
                 <>
+                  <button onClick={() => navigate("/detalle-producto", { state: { product } })}>
+                    Ver Detalles
+                  </button>
                   <button className="edit-btn" onClick={() => handleEdit(index, product)}>Editar</button>
                   <button className="delete-btn" onClick={() => onDelete(index)}>Eliminar</button>
                 </>
@@ -211,9 +216,9 @@ const ProductList = ({ products, onDelete, onEdit }) => {
 };
 
 
-  const DateElement = ({ value, setValue,text }) => {
-    return (
-      <>
+const DateElement = ({ value, setValue, text }) => {
+  return (
+    <>
       <label>{text}</label>
       <input
         type="date"
@@ -222,9 +227,9 @@ const ProductList = ({ products, onDelete, onEdit }) => {
         max={new Date().toISOString().split("T")[0]} // Establece la fecha máxima como la fecha actual  
         required
       />
-      </>
-    );
-  }
+    </>
+  );
+}
 
 
 const CheckboxElement = ({ checked, id, setChecked, text }) => {
