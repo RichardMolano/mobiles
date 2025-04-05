@@ -1,20 +1,42 @@
-import React, { useState } from "react";
+import React, {  useState,useEffect  } from "react";
 
 const ProductList = ({ products, onDelete, onEdit }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editStatus, setEditStatus] = useState(false);
+  const [editEntryDate, setEditEntryDate] = useState("");
   // Nuevos estados 
   const [editReference, setEditReference] = useState("");
   const [editOS, setEditOS] = useState("");
   const [editLaptop, setEditLaptop] = useState(false);
+  //date config
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        handleCancel();
+      }
+    };
+
+    if (editIndex !== null) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [editIndex]); // Se ejecuta cuando editIndex cambia
 
   const handleEdit = (index, product) => {
     setEditIndex(index);
     setEditValue(product.name);
     setEditCategory(product.category);
     setEditStatus(product.status === "Usado");
+    setEditEntryDate(product.entryDate);
     //Nuevos Estados
     setEditReference(product.reference);
     setEditOS(product.OS);
@@ -22,11 +44,18 @@ const ProductList = ({ products, onDelete, onEdit }) => {
   };
 
   const handleSave = (index) => {
-    if (editValue.trim() && editCategory.trim()) {
+    const today = new Date().toISOString().split("T")[0];
+    if (editEntryDate > today) {
+      alert("La fecha de ingreso no puede ser futura.");
+      return;
+    }
+
+    if (editValue.trim() && editCategory.trim() && editEntryDate) {
       onEdit(index, {
         name: editValue,
         category: editCategory,
         status: editStatus ? "Usado" : "Nuevo",
+        entryDate: editEntryDate ,
         reference: editReference,
         OS: editOS,
         lap: editLaptop ? "Portátil" : "Escritorio"
@@ -40,6 +69,12 @@ const ProductList = ({ products, onDelete, onEdit }) => {
     setEditValue("");
     setEditCategory("");
     setEditStatus(false);
+    setEditEntryDate("");
+  };
+  const handleClearSearch = () => { // Función que maneja la limpieza de la búsqueda
+    setSearchTerm("");
+    setStartDate("");
+    setEndDate("");
   };
 
   const dic_OS = {
@@ -59,17 +94,52 @@ const ProductList = ({ products, onDelete, onEdit }) => {
     },
   };
 
+  const filteredProducts = products.filter((product) => { // Filtra los productos según el término de búsqueda y el rango de fechas
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) || // Compara el nombre del producto con el término de búsqueda
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.status.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDateRange = 
+      (!startDate || product.entryDate >= startDate) &&
+      (!endDate || product.entryDate <= endDate);
+
+    return matchesSearch && matchesDateRange;
+  });
 
   return (
     <div>
       <h2>Lista de Productos</h2>
+      <div className="filter-container">   {/* Contenedor de la barra de búsqueda y filtro de fechas */}
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-box"
+        />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          max={new Date().toISOString().split("T")[0]}
+          className="date-filter"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          max={new Date().toISOString().split("T")[0]}
+          className="date-filter"
+        />
+        <button onClick={handleClearSearch} className="clear-btn">Limpiar</button>
+      </div>
       <ul>
-        {products.map((product, index) => (
+        {filteredProducts.map((product, index) => (
           <li key={index} className="product-item">
             <div className="product-content">
               {editIndex === index ? (
                 <>
-
                   <InputElement
                     value={editValue}
                     setValue={setEditValue}
@@ -81,8 +151,6 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                     placeholder="Referencia del Equipo"
                     type={"Number"}
                   />
-
-
                   <SelectElement
                     value={editCategory}
                     setValue={setEditCategory}
@@ -94,6 +162,11 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                     setValue={setEditOS}
                     dicCategory={dic_OS}
                     initialItem={"Seleccione el sistema operativo"}
+                  />
+                  <DateElement
+                    value={editEntryDate}
+                    setValue={setEditEntryDate}
+                    text={"Fecha de ingreso del equipo:"}
                   />
                   <section style={{ display: "flex", flexDirection: "row" }}>
                     <CheckboxElement
@@ -136,6 +209,22 @@ const ProductList = ({ products, onDelete, onEdit }) => {
   );
 
 };
+
+
+  const DateElement = ({ value, setValue,text }) => {
+    return (
+      <>
+      <label>{text}</label>
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        max={new Date().toISOString().split("T")[0]} // Establece la fecha máxima como la fecha actual  
+        required
+      />
+      </>
+    );
+  }
 
 
 const CheckboxElement = ({ checked, id, setChecked, text }) => {

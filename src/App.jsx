@@ -5,15 +5,15 @@ import "./index.css";
 
 const App = () => {
   const [products, setProducts] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
+  const [theme, setTheme] = useState("light"); // Estado para el tema de la aplicación (light, dark, blue)  
 
   useEffect(() => {
     const savedProducts = JSON.parse(localStorage.getItem("products")) || [];
     setProducts(savedProducts);
 
-    const savedMode = localStorage.getItem("darkMode") === "true";
-    setDarkMode(savedMode);
-    document.body.classList.toggle("dark-mode", savedMode);
+    const savedTheme = localStorage.getItem("theme")  || "light";
+    setTheme(savedTheme);
+    document.body.classList.toggle(savedTheme);
   }, []);
 
   useEffect(() => {
@@ -42,17 +42,18 @@ const App = () => {
     localStorage.setItem("products", JSON.stringify(updatedProducts));
   };
 
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    document.body.classList.toggle("dark-mode", newMode);
-    localStorage.setItem("darkMode", newMode);
+  const toggleTheme = () => { // Función que cambia el tema de la aplicación
+    const newTheme = theme === "light" ? "dark" : theme === "dark" ? "blue" : theme ==="blue" ? "yellow" : theme ==="yellow" ? "green" : "light"; // Cambia el tema actual al siguiente en el ciclo (light -> dark -> blue -> yellow --> green -->light) 
+    document.body.classList.remove(theme);
+    document.body.classList.add(newTheme);
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
   };
 
   return (
     <div className="container">
-      <button className="dark-mode-toggle" onClick={toggleDarkMode}>
-        {darkMode ? "☀ Modo Claro" : "🌙 Modo Oscuro"}
+      <button className="theme-toggle" onClick={toggleTheme}>
+      {theme === "light" ? "🌙 Modo Oscuro" : theme === "dark" ? "🔵 Modo Azul": theme ===  "blue" ? "Modo Amarillo" :theme === "yellow" ? "Modo Verde": "Blanco"}
       </button>
       <h1>Inventario de Equipos de la USTA</h1>
       <ProductForm onAdd={addProduct} />
