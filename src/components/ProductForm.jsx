@@ -36,7 +36,7 @@ const ProductForm = ({ onAdd }) => {
       return;
     }
     if (product.trim() && category.trim() && entryDate.trim()) {
-      onAdd({ name: product, category, status: isUsed ? "Usado" : "Nuevo", lap: laptop ? "Portátil" : "Escritorio", reference: reference, OS });
+      onAdd({ name: product, category, status: isUsed ? "Usado" : "Nuevo", lap: laptop ? "Portátil" : "Escritorio", reference: reference, OS, entryDate });
       setProduct("");
       setCategory("");
       setIsUsed(false);
@@ -50,38 +50,38 @@ const ProductForm = ({ onAdd }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ display: "flex", flexDirection: "row" , gap: "10px", marginBottom: "10px" }}>
-      <InputElement value={product} setValue={setProduct} placeholder="Nombre del Equipo" type={"Text"} />
-      <InputElement value={reference} setValue={setReference} placeholder="Referencia del Equipo" type={"Number"} />
-      </div>  
-      <div style={{ display: "flex", flexDirection: "row" , gap: "10px", marginBottom: "10px" }} >
-      <SelectElement value={category} setValue={setCategory} dicCategory={dic_category} initialItem={"Seleccione la sala"} />
-      <SelectElement value={OS} setValue={setOS} dicCategory={dic_OS} initialItem={"Seleccione el sistema operativo"} />
-      
+      <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "10px" }}>
+        <InputElement value={product} setValue={setProduct} placeholder="Nombre del Equipo" type={"Text"} />
+        <InputElement value={reference} setValue={setReference} placeholder="Referencia del Equipo" type={"Number"} />
       </div>
-      <div style={{ display: "flex", flexDirection: "row" , gap: "10px", marginBottom: "10px" , alignItems : "center" , alignContent : "center"  , width :"100%"}} >
-     <section style={{ display: "flex", flexDirection: "row" }}>
-        <CheckboxElement checked={isUsed} id="estado-equipo" setChecked={setIsUsed} text={"Computaador Usado "} />
-        <CheckboxElement checked={laptop} id="laptop" setChecked={setIsLaptop} text={"Laptop"} />
-      </section>
-      <DateElement value={entryDate} setValue={setEntryDate} text={"Fecha de ingreso del equipo:"} />
+      <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "10px" }} >
+        <SelectElement value={category} setValue={setCategory} dicCategory={dic_category} initialItem={"Seleccione la sala"} />
+        <SelectElement value={OS} setValue={setOS} dicCategory={dic_OS} initialItem={"Seleccione el sistema operativo"} />
+
+      </div>
+      <div style={{ display: "flex", flexDirection: "row", gap: "10px", marginBottom: "10px", alignItems: "center", alignContent: "center", width: "100%" }} >
+        <section style={{ display: "flex", flexDirection: "row" }}>
+          <CheckboxElement checked={isUsed} id="estado-equipo" setChecked={setIsUsed} text={"Computaador Usado "} />
+          <CheckboxElement checked={laptop} id="laptop" setChecked={setIsLaptop} text={"Laptop"} />
+        </section>
+        <DateElement value={entryDate} setValue={setEntryDate} text={"Fecha de ingreso del equipo:"} />
       </div>
       <button type="submit">Agregar</button>
     </form>
   );
 };
 
-const DateElement = ({ value, setValue,text }) => {
+const DateElement = ({ value, setValue, text }) => {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-    <label>{text}</label>
-    <input
-      type="date"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      max={new Date().toISOString().split("T")[0]} // Establece la fecha máxima como la fecha actual  
-      required
-    />
+      <label>{text}</label>
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        max={new Date().toISOString().split("T")[0]} // Establece la fecha máxima como la fecha actual  
+        required
+      />
     </div>
   );
 }
