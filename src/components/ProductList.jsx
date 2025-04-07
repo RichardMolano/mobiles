@@ -199,7 +199,7 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                 </>
               ) : (
                 <>
-                  <button onClick={() => navigate("/detalle-producto", { state: { product } })}>
+                  <button onClick={() => navigate("/detalle-producto", { state: {index , product } })}>
                     Ver Detalles
                   </button>
                   <button className="edit-btn" onClick={() => handleEdit(index, product)}>Editar</button>

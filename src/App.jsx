@@ -69,7 +69,7 @@ const App = () => {
               </>
             }
           />
-          <Route path="/detalle-producto" element={<ProductDetail />} />
+          <Route path="/detalle-producto" element={<ProductDetail  products={products} onDelete={deleteProduct} onEdit={editProduct} />} />
         </Routes>
       </div>
     </Router>
