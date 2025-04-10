@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 const ProductForm = ({ onAdd }) => {
   const [product, setProduct] = useState("");
@@ -6,9 +6,12 @@ const ProductForm = ({ onAdd }) => {
   const [isUsed, setIsUsed] = useState(false); // Estado para determinar si el equipo es usado
   const [laptop, setIsLaptop] = useState(false); // Estado para determinar si el equipo es un portátil
   const [reference, setReference] = useState(); // Estado para la referencia del equipo
+  const [image , setImage] = useState(null);
   const [OS, setOS] = useState("");
   const [entryDate, setEntryDate] = useState(""); // Estado para la fecha de ingreso
+  const [imagePreview, setImagePreview] = useState(null); 
 
+  const fileInputRef = useRef(null);
 
   const dic_OS = {
     "Windows": { "Windows 10": "Windows 10", "Windows 11": "Windows 11" },
@@ -35,16 +38,56 @@ const ProductForm = ({ onAdd }) => {
       alert("La fecha de ingreso no puede ser futura.");
       return;
     }
-    if (product.trim() && category.trim() && entryDate.trim()) {
-      onAdd({ name: product, category, status: isUsed ? "Usado" : "Nuevo", lap: laptop ? "Portátil" : "Escritorio", reference: reference, OS, entryDate });
+    if (product.trim() && category.trim() && entryDate.trim() && image) {
+      onAdd({ name: product, category, status: isUsed ? "Usado" : "Nuevo", lap: laptop ? "Portátil" : "Escritorio", reference: reference, OS, entryDate , image:image });
       setProduct("");
       setCategory("");
       setIsUsed(false);
       setIsLaptop(false);
       setReference(Number);
       setOS("");
+      setImage(null);
       setReference("")
       setEntryDate("");
+      setImage(null); // Limpia la imagen
+      setImagePreview(null); // Limpia la vista previa de la imagen
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null; // Limpia el input de archivo
+      }
+    }
+    else {
+      alert("No se ha seleccionado ninguna imagen.");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif", "image/webp"];
+      const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+  
+      if (!validImageTypes.includes(file.type)) {
+        alert("Por favor, selecciona un archivo de imagen válido (jpeg, png, jpg, gif, webp).");
+        e.target.value = null; // Limpia la selección del archivo
+        setImage(null);
+        setImagePreview(null);
+        return;
+      }
+  
+      if (file.size > maxSizeInBytes) {
+        alert("La imagen es demasiado grande. El tamaño máximo permitido es de 2 MB.");
+        e.target.value = null;
+        setImage(null);
+        setImagePreview(null);
+        return;
+      }
+  
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result); // Guarda la imagen como base64
+      };
+      setImagePreview(URL.createObjectURL(file)); // Para la vista previa
+      reader.readAsDataURL(file);
     }
   };
 
@@ -66,8 +109,34 @@ const ProductForm = ({ onAdd }) => {
         </section>
         <DateElement value={entryDate} setValue={setEntryDate} text={"Fecha de ingreso del equipo:"} />
       </div>
+      <ImageElement handleImageChange={handleImageChange} fileInputRef={fileInputRef} imagePreview={imagePreview} />
       <button type="submit">Agregar</button>
     </form>
+  );
+};
+
+const ImageElement = ({ handleImageChange, fileInputRef, imagePreview }) => {
+  return (
+    <div>
+      <label>Imagen del producto:</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        ref={fileInputRef} // Referencia al input de archivo
+      />
+      {/* Vista previa de la imagen */}
+      {imagePreview && (
+        <div>
+          <p>Vista previa de la imagen:</p>
+          <img
+            src={imagePreview}
+            alt="Vista previa"
+            style={{ width: "200px", height: "auto", marginTop: "10px" }}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

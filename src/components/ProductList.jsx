@@ -16,6 +16,8 @@ const ProductList = ({ products, onDelete, onEdit }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [editImage, setEditImage] = useState(null); // Nuevo estado para imagen editada
+
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -43,6 +45,18 @@ const ProductList = ({ products, onDelete, onEdit }) => {
     setEditReference(product.reference);
     setEditOS(product.OS);
     setEditLaptop(product.lap === "Portátil");
+    setEditImage(product.image); // Asigna la imagen del producto editado
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImage(reader.result); // Guarda la imagen como base64
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = (index) => {
@@ -60,7 +74,8 @@ const ProductList = ({ products, onDelete, onEdit }) => {
         entryDate: editEntryDate,
         reference: editReference,
         OS: editOS,
-        lap: editLaptop ? "Portátil" : "Escritorio"
+        lap: editLaptop ? "Portátil" : "Escritorio",
+        image: editImage, // Usa la imagen actual (vieja(cargada al registro) o nueva)
       });
       setEditIndex(null);
     }
@@ -72,6 +87,8 @@ const ProductList = ({ products, onDelete, onEdit }) => {
     setEditCategory("");
     setEditStatus(false);
     setEditEntryDate("");
+    setEditImage(null); // Limpia la imagen editada
+    setEditReference("");
   };
   const handleClearSearch = () => { // Función que maneja la limpieza de la búsqueda
     setSearchTerm("");
@@ -170,6 +187,10 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                     setValue={setEditEntryDate}
                     text={"Fecha de ingreso del equipo:"}
                   />
+                  <ImageElement
+                    handleImageChange={handleImageChange}
+                    imagePreview={editImage} // Usa la imagen editada
+                    />
                   <section style={{ display: "flex", flexDirection: "row" }}>
                     <CheckboxElement
                       checked={editStatus}
@@ -184,11 +205,19 @@ const ProductList = ({ products, onDelete, onEdit }) => {
                   </section>
                 </>
               ) : (
+                <div>
+
+                <img
+                  src={product.image}
+                  alt="Imagen del producto"
+                  className="product-icon"
+                  />
                 <span>
                   {product.name} - Ref: {product.reference} -
                   <strong> {product.category}</strong> -
                   {product.status} - {product.lap} - SO: {product.OS}
                 </span>
+                  </div>
               )}
             </div>
             <div className="button-group">
@@ -214,6 +243,30 @@ const ProductList = ({ products, onDelete, onEdit }) => {
   );
 
 };
+
+const ImageElement = ({ handleImageChange, imagePreview }) => {
+  return (
+    <div>
+      <label>Imagen del producto:</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+      />
+      {/* Vista previa de la imagen */}
+      {imagePreview && (
+        <div>
+          <p>Vista previa de la imagen:</p>
+          <img
+            src={imagePreview}
+            alt="Vista previa"
+            style={{ width: "200px", height: "auto", marginTop: "10px" }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 
 const DateElement = ({ value, setValue, text }) => {

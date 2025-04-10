@@ -8,6 +8,17 @@ body {
   text-align: center;
 }
 
+.product-icon {
+  width: 50px; /* Ancho del icono */
+  height: 50px; /* Alto del icono */
+  margin-right: 10px; /* Espacio entre el icono y el texto */
+  vertical-align: middle; /* Alineación vertical */
+  /* hacer que sea redonda como un circulo y en cover  */
+  border-radius: 50%; /* Bordes redondeados */
+  object-fit: cover; /* Ajusta la imagen al contenedor */
+
+}
+
 /* Contenedor principal */
 .container {
   max-width: 80%;

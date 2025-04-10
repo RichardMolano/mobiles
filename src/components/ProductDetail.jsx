@@ -17,6 +17,7 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
   const [editReference, setEditReference] = useState(() => localStorage.getItem("editReference") || "");
   const [editOS, setEditOS] = useState(() => localStorage.getItem("editOS") || "");
   const [editLaptop, setEditLaptop] = useState(() => localStorage.getItem("editLaptop") === "true");
+  const [editImage, setEditImage] = useState(() => localStorage.getItem("editImage") || null); // Estado para la imagen editada
 
   useEffect(() => {
     localStorage.setItem("editIndex", editIndex !== null ? editIndex : "");
@@ -27,7 +28,9 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
     localStorage.setItem("editReference", editReference);
     localStorage.setItem("editOS", editOS);
     localStorage.setItem("editLaptop", editLaptop);
-  }, [editIndex, editValue, editCategory, editStatus, editEntryDate, editReference, editOS, editLaptop]);
+    localStorage.setItem("editImage", editImage); // Guardar la imagen editada en localStorage
+
+  }, [editIndex, editValue, editCategory, editStatus, editEntryDate, editReference, editOS, editLaptop, editImage]);
 
   useEffect(() => {
     sessionStorage.setItem("editIndex", editIndex);
@@ -63,7 +66,8 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
     sessionStorage.setItem("editReference", editReference);
     sessionStorage.setItem("editOS", editOS);
     sessionStorage.setItem("editLaptop", editLaptop);
-  }, [editIndex, editValue, editCategory, editStatus, editEntryDate, editReference, editOS, editLaptop]);
+    sessionStorage.setItem("editImage", editImage); // Guardar la imagen editada en sessionStorage
+  }, [editIndex, editValue, editCategory, editStatus, editEntryDate, editReference, editOS, editLaptop, editImage]);
 
 
   const handleEdit = (index, product) => {
@@ -75,6 +79,17 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
     setEditReference(product.reference);
     setEditOS(product.OS);
     setEditLaptop(product.lap === "Portátil");
+    setEditImage(product.image); // Asignar la imagen del producto a editar
+  };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditImage(reader.result); // Guarda la imagen como base64
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
 
@@ -94,6 +109,7 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
         reference: editReference,
         OS: editOS,
         lap: editLaptop ? "Portátil" : "Escritorio",
+        image: editImage, // Guardar la imagen editada
       });
       setEditIndex(null);
     }
@@ -109,6 +125,7 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
     setEditReference("");
     setEditOS("");
     setEditLaptop(false);
+    setEditImage(null); // Limpiar la imagen editada
 
     // Clear localStorage
     localStorage.removeItem("editIndex");
@@ -150,6 +167,10 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
               <div className="product-content" >
                 {editIndex === indexlocal ? (
                   <>
+                    <ImageElement
+                      handleImageChange={handleImageChange}
+                      imagePreview={editImage} // Usa la imagen editada
+                    />
                     <InputElement
                       value={editValue}
                       setValue={setEditValue}
@@ -198,9 +219,21 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
                   </>
                 ) : (
                   <div className="detail-container">
+                    <div>
+                      <h1>Imagen del Producto</h1>
+
+                      <img
+                        src={product.image}
+                        alt="Imagen del producto"
+                        style={{ width: "150px", height: "auto", borderRadius: "5px" }}
+                      />
+                    </div>
                     <h2>Detalles del Producto</h2>
                     <table className="detail-table">
                       <tbody>
+
+
+
                         <tr>
                           <th>Nombre del Equipo</th>
                           <td>{product.name}</td>
@@ -272,6 +305,29 @@ const ProductDetail = ({ products = [], onDelete, onEdit }) => {
     </div>
   );
 };
+const ImageElement = ({ handleImageChange, imagePreview }) => {
+  return (
+    <div>
+      <label>Imagen del producto:</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+      />
+      {/* Vista previa de la imagen */}
+      {imagePreview && (
+        <div>
+          <p>Vista previa de la imagen:</p>
+          <img
+            src={imagePreview}
+            alt="Vista previa"
+            style={{ width: "200px", height: "auto", marginTop: "10px" }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 const DateElement = ({ value, setValue, text }) => {
   return (
